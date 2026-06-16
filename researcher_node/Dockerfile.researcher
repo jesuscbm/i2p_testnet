@@ -1,0 +1,17 @@
+FROM purplei2p/i2pd:latest
+
+USER root
+RUN apk add --no-cache gettext
+
+COPY i2pd.conf.template /i2pd.conf.template
+COPY entrypoint.sh /entrypoint.sh
+
+# Pre-create paths, assign ownership, and make script executable
+RUN mkdir -p /shared_certs /var/lib/i2pd/certificates/reseed /var/lib/i2pd/netDb && \
+    chown -R 1000:1000 /var/lib/i2pd /shared_certs && \
+    chmod +x /entrypoint.sh
+
+HEALTHCHECK --interval=2s --timeout=5s --retries=10 \
+  CMD test -f /var/netdb/routerInfo-*.dat || exit 1
+
+ENTRYPOINT ["/entrypoint.sh"]

@@ -1,0 +1,30 @@
+## i2pd/i2pd.conf.template
+loglevel = ${LOG_LEVEL}
+
+# This prevents accidentally mixing with the main net (id 2)
+netid = 87
+
+ipv4 = true
+ipv6 = false
+
+# Prevents floodfills peer testing
+nat = false
+
+address4 = ${ROUTER_IP}
+port = ${ROUTER_PORT}
+
+floodfill = ${FLOODFILL}
+
+[ntcp2]
+enabled = true
+published = true
+port = ${ROUTER_PORT}
+
+[ssu2]
+enabled = true
+published = true
+port = ${ROUTER_PORT}
+
+[reseed]
+verify = false
+urls = ${RESEED_URL}

@@ -1,0 +1,25 @@
+# Force static TCP binding to the dynamic Docker IP
+router.networkID=87
+i2np.ntcp.hostname=${ROUTER_IP}
+i2np.ntcp.port=4568
+i2np.ntcp.autoip=false
+
+# STRICT DISABLE: Prevent NAT peer testing demotion
+# i2np.udp.internalPort=0
+# i2np.udp.port=0
+
+# Custom Testnet Reseed
+i2p.reseedURL=https://reseed:8443/
+i2p.reseed.disableVerify=true
+router.networkDatabase.defaultServers=false
+
+# Sybil settings
+router.floodfillParticipant=true
+router.isHidden=false
+
+router.blocklist.enable=false
+
+router.inboundPool.length=0
+router.outboundPool.length=0
+
+routerconsole.welcomeWizardComplete=true

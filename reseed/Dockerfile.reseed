@@ -1,0 +1,13 @@
+FROM eyedeekay/reseed:latest
+
+USER root
+COPY entrypoint.sh /entrypoint.sh
+RUN mkdir -p /shared_certs /var/lib/i2p/i2p-config/netDb && \
+    chown -R 1000:1000 /shared_certs /var/lib/i2p/i2p-config/netDb && \
+    chmod +x /entrypoint.sh
+
+# Zero-dependency healthcheck using bash's built-in TCP ping
+HEALTHCHECK --interval=5s --timeout=5s --start-period=15s --retries=10 \
+  CMD bash -c '</dev/tcp/127.0.0.1/8443 2>/dev/null' || exit 1
+
+ENTRYPOINT ["/entrypoint.sh"]

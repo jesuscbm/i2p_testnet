@@ -1,0 +1,93 @@
+volumes:
+  testnet_certs:
+  shared_netdb:
+
+networks:
+  testnet:
+    ipam:
+      config:
+        - subnet: 45.10.0.0/16
+
+services:
+  researcher_node:
+    container_name: researcher_node
+    build:
+      context: ./researcher_node
+      dockerfile: Dockerfile.researcher
+    environment:
+      - LOG_LEVEL=info
+      - ROUTER_PORT=4568
+      - FLOODFILL=true
+      - RESEED_URL="" #https://reseed:8443/
+    volumes:
+      - testnet_certs:/shared_certs:ro
+      - ./researcher_node/data:/var/lib/i2pd
+      - shared_netdb:/var/netdb
+    ports:
+      - "7069:7070"
+      - "3444:4444"
+      - "3446:4446"
+      - "6656:7656"
+    networks:
+      testnet:
+        ipv4_address: 45.10.10.1
+
+  reseed:
+    container_name: reseed
+    depends_on:
+      researcher_node:
+        condition: service_healthy
+    build:
+      context: ./reseed
+      dockerfile: Dockerfile.reseed
+    environment:
+      # Number of RIs to include in each reseeding. Requires this many routers to publish their RIs
+      - NUM_RI=1
+    expose:
+      - "8443"
+    volumes:
+      - testnet_certs:/shared_certs
+      - shared_netdb:/var/lib/i2p/i2p-config/netDb
+    networks:
+      - testnet
+
+  i2pd-pool:
+    build: 
+      context: ./i2pd
+      dockerfile: Dockerfile.i2pd
+    depends_on:
+      reseed:
+        condition: service_healthy
+    environment:
+      - LOG_LEVEL=warn
+      - ROUTER_PORT=4568
+      - FLOODFILL=true
+      - RESEED_URL=https://reseed:8443/
+    deploy:
+      replicas: 0
+    volumes:
+      - testnet_certs:/shared_certs:ro
+    networks:
+      - testnet
+
+  # I2P's java implementation has to be the least docker-friendly/test-friendly thing ever
+  i2p-pool:
+    build: 
+      context: ./i2p
+      dockerfile: Dockerfile.i2p
+    depends_on:
+      reseed:
+        condition: service_healthy
+    environment:
+      - EXT_PORT=7356
+      - JVM_XMX=256m  # Use the official variable to keep footprint low
+    volumes:
+      - testnet_certs:/shared_certs:ro
+      - ./i2plogs:/i2p/.i2p/logs
+    ports:
+      - "7657:7657"
+      - "4444:4444"
+    deploy:
+      replicas: 1
+    networks:
+      - testnet

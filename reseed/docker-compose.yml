@@ -1,0 +1,11 @@
+services:
+  reseed:
+    build:
+      context: .
+      dockerfile: Dockerfile.reseed
+    ports:
+      - "8443:8443"
+      - "8080:8080"
+    volumes:
+      - ./shared_certs:/shared_certs
+      - ./shared_netdb:/var/lib/i2p/i2p-config/netDb
