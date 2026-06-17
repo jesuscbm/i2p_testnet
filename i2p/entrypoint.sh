@@ -6,12 +6,12 @@ while [ ! -f /shared_certs/testnet.crt ] || [ ! -f /shared_certs/reseed.crt ]; d
 done
 
 # Force verbose Java logging to stdout
-cat <<EOF > /i2p/.i2p/logger.config
-logger.defaultLevel=DEBUG
-logger.displayOnScreen=true
-logger.consoleBufferSize=100000
-EOF
-chown i2p:i2p /i2p/.i2p/logger.config
+# cat <<EOF > /i2p/.i2p/logger.config
+# logger.defaultLevel=DEBUG
+# logger.displayOnScreen=true
+# logger.consoleBufferSize=100000
+# EOF
+# chown i2p:i2p /i2p/.i2p/logger.config
 
 cp /shared_certs/reseed.crt /usr/local/share/ca-certificates/reseed.crt
 cp /shared_certs/testnet.crt /usr/local/share/ca-certificates/testnet.crt

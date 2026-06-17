@@ -1,12 +1,14 @@
 volumes:
   testnet_certs:
   shared_netdb:
-
+    driver_opts:
+      type: tmpfs
+      device: tmpfs
 networks:
   testnet:
     ipam:
       config:
-        - subnet: 45.10.0.0/16
+        - subnet: 45.0.0.0/8
 
 services:
   researcher_node:
@@ -15,34 +17,54 @@ services:
       context: ./researcher_node
       dockerfile: Dockerfile.researcher
     environment:
-      - LOG_LEVEL=info
+      - LOG_LEVEL=warn
       - ROUTER_PORT=4568
       - FLOODFILL=true
       - RESEED_URL="" #https://reseed:8443/
     volumes:
       - testnet_certs:/shared_certs:ro
-      - ./researcher_node/data:/var/lib/i2pd
+      # - ./researcher_node/data:/var/lib/i2pd
       - shared_netdb:/var/netdb
     ports:
-      - "7069:7070"
-      - "3444:4444"
-      - "3446:4446"
-      - "6656:7656"
+      - "7069:7070" # Control panel
+      - "3444:4444" # HTTP Proxy
+      - "3447:4447" # SOCKS Proxy
+      - "6656:7656" # SAM
     networks:
       testnet:
-        ipv4_address: 45.10.10.1
+        ipv4_address: 45.1.1.1
+
+  # I2P's java implementation has to be the least docker-friendly/test-friendly thing ever
+  java_researcher:
+    build: 
+      context: ./java_researcher
+      dockerfile: Dockerfile.java_researcher
+    environment:
+      - EXT_PORT=7356
+      - JVM_XMX=512m
+    ports:
+      - "7657:7657" # Webconsole
+    volumes:
+      - testnet_certs:/shared_certs:ro
+      - shared_netdb:/var/netdb
+      - ./i2plogs:/i2p/.i2p/logs
+    networks:
+      testnet:
+        ipv4_address: 45.2.1.1
 
   reseed:
     container_name: reseed
     depends_on:
       researcher_node:
         condition: service_healthy
+      java_researcher:
+        condition: service_healthy
     build:
       context: ./reseed
       dockerfile: Dockerfile.reseed
     environment:
       # Number of RIs to include in each reseeding. Requires this many routers to publish their RIs
-      - NUM_RI=1
+      - NUM_RI=2
     expose:
       - "8443"
     volumes:
@@ -51,7 +73,7 @@ services:
     networks:
       - testnet
 
-  i2pd-pool:
+  i2pd_pool:
     build: 
       context: ./i2pd
       dockerfile: Dockerfile.i2pd
@@ -59,12 +81,12 @@ services:
       reseed:
         condition: service_healthy
     environment:
-      - LOG_LEVEL=warn
+      - LOG_LEVEL=none
       - ROUTER_PORT=4568
       - FLOODFILL=true
       - RESEED_URL=https://reseed:8443/
     deploy:
-      replicas: 0
+      replicas: 10
     volumes:
       - testnet_certs:/shared_certs:ro
     networks:
@@ -83,11 +105,53 @@ services:
       - JVM_XMX=256m  # Use the official variable to keep footprint low
     volumes:
       - testnet_certs:/shared_certs:ro
-      - ./i2plogs:/i2p/.i2p/logs
-    ports:
-      - "7657:7657"
-      - "4444:4444"
     deploy:
-      replicas: 1
+      replicas: 0
     networks:
       - testnet
+
+  victim:
+    build: 
+      context: ./victim
+      dockerfile: Dockerfile.victim
+    depends_on:
+      reseed:
+        condition: service_healthy
+    environment:
+      - LOG_LEVEL=none
+      - ROUTER_PORT=4568
+      - FLOODFILL=true
+      - RESEED_URL=https://reseed:8443/
+    ports:
+      - "7071:7070" # Control panel
+      - "4444:4444" # HTTP Proxy
+      - "4447:4447" # SOCKS Proxy
+    volumes:
+      - testnet_certs:/shared_certs:ro
+      - shared_netdb:/var/netdb
+    networks:
+      testnet:
+        ipv4_address: 45.4.240.1
+
+  attacker:
+    build: 
+      context: ./attacker
+      dockerfile: Dockerfile.attacker
+    depends_on:
+      reseed:
+        condition: service_healthy
+    ports:
+      - "7072:7070" # Control panel
+      - "5444:4444" # HTTP Proxy
+      - "5447:4447" # SOCKS Proxy
+    environment:
+      - LOG_LEVEL=warn
+      - ROUTER_PORT=4568
+      - FLOODFILL=true
+      - RESEED_URL=https://reseed:8443/
+    volumes:
+      - testnet_certs:/shared_certs:ro
+      - shared_netdb:/var/netdb
+    networks:
+      testnet:
+        ipv4_address: 45.3.240.1

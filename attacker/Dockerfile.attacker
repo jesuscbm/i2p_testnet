@@ -1,0 +1,29 @@
+# Stage 1: Builder
+FROM alpine:latest AS builder
+# Added miniupnpc-dev to match official build dependencies
+RUN apk add --no-cache build-base boost-dev openssl-dev zlib-dev git miniupnpc-dev
+COPY ./src /src
+WORKDIR /src
+RUN make clean
+# Compile dynamically
+RUN make -j$(( $(nproc) - 1 ))
+
+# Stage 2: Final Image
+FROM alpine:latest
+# Install runtime libraries required by the dynamically linked binary, plus gettext for envsubst
+RUN apk add --no-cache ca-certificates busybox-extras gettext \
+    boost-filesystem boost-system boost-program_options boost-date_time \
+    boost-thread boost-iostreams openssl miniupnpc musl-utils libstdc++
+
+COPY --from=builder /src/i2pd /usr/local/bin/i2pd
+USER root
+
+COPY i2pd.conf.template /i2pd.conf.template
+COPY entrypoint.sh /entrypoint.sh
+
+# Pre-create paths, assign ownership, and make script executable
+RUN mkdir -p /shared_certs /var/lib/i2pd/certificates/reseed /var/lib/i2pd/netDb && \
+    chown -R 1000:1000 /var/lib/i2pd /shared_certs && \
+    chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

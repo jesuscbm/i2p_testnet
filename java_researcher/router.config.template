@@ -8,11 +8,6 @@ i2np.ntcp.autoip=false
 # i2np.udp.internalPort=0
 # i2np.udp.port=0
 
-# Custom Testnet Reseed
-i2p.reseedURL=https://reseed:8443/
-i2p.reseed.disableVerify=true
-router.networkDatabase.defaultServers=false
-
 # Sybil settings
 router.floodfillParticipant=true
 router.isHidden=false
@@ -22,4 +17,7 @@ router.blocklist.enable=false
 # router.inboundPool.length=0
 # router.outboundPool.length=0
 
+# Disable reseeding
+router.reseedDisable=true
 routerconsole.welcomeWizardComplete=true
+router.networkDatabase.defaultServers=false

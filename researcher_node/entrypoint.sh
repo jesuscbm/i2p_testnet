@@ -11,8 +11,16 @@ try_push() {
 	while [ ! -f /var/lib/i2pd/router.info ]; do
 		sleep 1
 	done
-	# cp /var/lib/i2pd/router.info "/var/netdb/routerInfo-researcher.dat"
-	cp /var/lib/i2pd/router.info "/var/netdb/routerInfo-dTyfoJzmJCRNQCcSDYzcowIOjU46qZl3XAfSsXeEYFg=.dat"
+	
+	LEN=$(od -An -N2 -j385 -t x1 /var/lib/i2pd/router.info | tr -d ' ')
+	SIZE=$((387 + LEN))
+	IDENT=$(dd if=/var/lib/i2pd/router.info bs=1 count=$SIZE 2>/dev/null | \
+			openssl dgst -sha256 -binary | \
+			base64 | tr '+/' '-~' )
+
+	cp /var/lib/i2pd/router.info "/var/netdb/routerInfo-$IDENT.dat"
+
+	touch /var/lib/i2pd/pushed.flag
 }
 
 try_push &

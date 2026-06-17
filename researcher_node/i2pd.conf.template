@@ -19,6 +19,7 @@ floodfill = true
 enabled = true
 published = true
 port = ${ROUTER_PORT}
+version = 2 # TODO: Make this work with any value
 
 [ssu2]
 enabled = true
@@ -26,9 +27,12 @@ published = true
 port = ${ROUTER_PORT}
 
 [reseed]
-verify = false
-# urls = ${RESEED_URL}
-threshold=0
+file = /doesntexist.su3
 
 [http]
 address = 0.0.0.0
+
+[httpproxy]
+enabled = true
+address = 0.0.0.0
+port = 4444

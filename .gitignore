@@ -1,5 +1,6 @@
 a
 *.zip
-./researcher_node/data/
-./i2plogs
+*/data/
+*/src/
+i2plogs/*
 ./reseed/shared_certs

@@ -1,0 +1,20 @@
+FROM geti2p/i2p:latest
+
+USER root
+
+# Added curl for reseed readiness probing
+RUN apt-get update && \
+    apt-get install -y gettext-base iproute2 ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /var/sybil_data /shared_certs /var/netdb
+
+COPY entrypoint.sh /testnet_entrypoint.sh
+COPY router.config.template /router.config.template
+
+RUN chmod +x /testnet_entrypoint.sh
+
+HEALTHCHECK --interval=2s --timeout=5s --retries=10 \
+  CMD ls /i2p/.i2p/pushed.flag  >/dev/null 2>&1 || exit 1 
+
+ENTRYPOINT ["/testnet_entrypoint.sh"]

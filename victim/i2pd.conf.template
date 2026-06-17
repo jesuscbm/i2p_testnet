@@ -29,3 +29,11 @@ port = ${ROUTER_PORT}
 [reseed]
 verify = false
 urls = ${RESEED_URL}
+
+[http]
+address = 0.0.0.0
+
+[httpproxy]
+enabled = true
+address = 0.0.0.0
+port = 4444
