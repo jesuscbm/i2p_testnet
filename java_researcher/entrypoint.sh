@@ -2,7 +2,7 @@
 
 # Force verbose Java logging to stdout
 cat <<EOF > /i2p/.i2p/logger.config
-logger.defaultLevel=DEBUG
+logger.defaultLevel=${LOG_LEVEL}
 logger.displayOnScreen=true
 logger.consoleBufferSize=100000
 EOF

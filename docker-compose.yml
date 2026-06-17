@@ -40,6 +40,7 @@ services:
       context: ./java_researcher
       dockerfile: Dockerfile.java_researcher
     environment:
+      - LOG_LEVEL=WARN
       - EXT_PORT=7356
       - JVM_XMX=512m
     ports:
@@ -106,7 +107,7 @@ services:
     volumes:
       - testnet_certs:/shared_certs:ro
     deploy:
-      replicas: 0
+      replicas: 10
     networks:
       - testnet
 
