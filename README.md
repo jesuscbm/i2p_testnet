@@ -1,3 +1,8 @@
+> BRANCH TO REPLICATE ERROR
+
+The configured setup just involves both researcher nodes (one I2P and one I2Pd)
+and one I2P node that will be seeded with the info from both researcher nodes.
+
 # I2P Isolated Docker Testnet
 
 This repository provides a fully dockerized, isolated I2P network (Testnet) for
@@ -113,8 +118,8 @@ These are some areas of improvement for the Test Network.
   initial seeds for the network. Ideally, the amount of initial seeders should
   be easily scalable.
 - Post-Quantum encryption. For an unknown reason, I2P and I2Pd nodes fail to
-  communicate using ML-KEM. Right now, the testnet configures I2Pd nodes not to
-  use Post-Quantum.
+  communicate using ML-KEM in this very specific setup. Right now, the testnet
+  configures I2Pd nodes not to use Post-Quantum.
 - Subnets. Docker does allow to customize subnets of specific containers using
   IPAM. However, easily scaling random-looking IP assignment is not
   supported. The alternative would involve a script to automatically generate

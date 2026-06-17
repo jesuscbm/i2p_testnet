@@ -19,7 +19,7 @@ floodfill = true
 enabled = true
 published = true
 port = ${ROUTER_PORT}
-version = 2 # TODO: Make this work with any value
+# version = 2 # TODO: Make this work with any value
 
 [ssu2]
 enabled = true

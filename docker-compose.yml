@@ -17,7 +17,7 @@ services:
       context: ./researcher_node
       dockerfile: Dockerfile.researcher
     environment:
-      - LOG_LEVEL=warn
+      - LOG_LEVEL=debug
       - ROUTER_PORT=4568
       - FLOODFILL=true
       - RESEED_URL="" #https://reseed:8443/
@@ -48,7 +48,7 @@ services:
     volumes:
       - testnet_certs:/shared_certs:ro
       - shared_netdb:/var/netdb
-      - ./i2plogs:/i2p/.i2p/logs
+      # - ./i2plogs:/i2p/.i2p/logs
     networks:
       testnet:
         ipv4_address: 45.2.1.1
@@ -87,7 +87,7 @@ services:
       - FLOODFILL=true
       - RESEED_URL=https://reseed:8443/
     deploy:
-      replicas: 10
+      replicas: 0
     volumes:
       - testnet_certs:/shared_certs:ro
     networks:
@@ -106,53 +106,54 @@ services:
       - JVM_XMX=256m  # Use the official variable to keep footprint low
     volumes:
       - testnet_certs:/shared_certs:ro
+      - ./i2plogs:/i2p/.i2p/logs
     deploy:
-      replicas: 10
+      replicas: 1
     networks:
       - testnet
-
-  victim:
-    build: 
-      context: ./victim
-      dockerfile: Dockerfile.victim
-    depends_on:
-      reseed:
-        condition: service_healthy
-    environment:
-      - LOG_LEVEL=none
-      - ROUTER_PORT=4568
-      - FLOODFILL=true
-      - RESEED_URL=https://reseed:8443/
-    ports:
-      - "7071:7070" # Control panel
-      - "4444:4444" # HTTP Proxy
-      - "4447:4447" # SOCKS Proxy
-    volumes:
-      - testnet_certs:/shared_certs:ro
-      - shared_netdb:/var/netdb
-    networks:
-      testnet:
-        ipv4_address: 45.4.240.1
-
-  attacker:
-    build: 
-      context: ./attacker
-      dockerfile: Dockerfile.attacker
-    depends_on:
-      reseed:
-        condition: service_healthy
-    ports:
-      - "7072:7070" # Control panel
-      - "5444:4444" # HTTP Proxy
-      - "5447:4447" # SOCKS Proxy
-    environment:
-      - LOG_LEVEL=warn
-      - ROUTER_PORT=4568
-      - FLOODFILL=true
-      - RESEED_URL=https://reseed:8443/
-    volumes:
-      - testnet_certs:/shared_certs:ro
-      - shared_netdb:/var/netdb
-    networks:
-      testnet:
-        ipv4_address: 45.3.240.1
+  #
+  # victim:
+  #   build: 
+  #     context: ./victim
+  #     dockerfile: Dockerfile.victim
+  #   depends_on:
+  #     reseed:
+  #       condition: service_healthy
+  #   environment:
+  #     - LOG_LEVEL=none
+  #     - ROUTER_PORT=4568
+  #     - FLOODFILL=true
+  #     - RESEED_URL=https://reseed:8443/
+  #   ports:
+  #     - "7071:7070" # Control panel
+  #     - "4444:4444" # HTTP Proxy
+  #     - "4447:4447" # SOCKS Proxy
+  #   volumes:
+  #     - testnet_certs:/shared_certs:ro
+  #     - shared_netdb:/var/netdb
+  #   networks:
+  #     testnet:
+  #       ipv4_address: 45.4.240.1
+  #
+  # attacker:
+  #   build: 
+  #     context: ./attacker
+  #     dockerfile: Dockerfile.attacker
+  #   depends_on:
+  #     reseed:
+  #       condition: service_healthy
+  #   ports:
+  #     - "7072:7070" # Control panel
+  #     - "5444:4444" # HTTP Proxy
+  #     - "5447:4447" # SOCKS Proxy
+  #   environment:
+  #     - LOG_LEVEL=warn
+  #     - ROUTER_PORT=4568
+  #     - FLOODFILL=true
+  #     - RESEED_URL=https://reseed:8443/
+  #   volumes:
+  #     - testnet_certs:/shared_certs:ro
+  #     - shared_netdb:/var/netdb
+  #   networks:
+  #     testnet:
+  #       ipv4_address: 45.3.240.1
