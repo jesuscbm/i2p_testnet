@@ -113,8 +113,8 @@ These are some areas of improvement for the Test Network.
   initial seeds for the network. Ideally, the amount of initial seeders should
   be easily scalable.
 - Post-Quantum encryption. For an unknown reason, I2P and I2Pd nodes fail to
-  communicate using ML-KEM. Right now, the testnet configures I2Pd nodes not to
-  use Post-Quantum.
+  communicate using ML-KEM in this setup. Right now, the testnet configures
+  I2Pd nodes not to use Post-Quantum.
 - Subnets. Docker does allow to customize subnets of specific containers using
   IPAM. However, easily scaling random-looking IP assignment is not
   supported. The alternative would involve a script to automatically generate
